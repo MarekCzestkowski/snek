@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class controls : MonoBehaviour {
 
@@ -10,7 +13,7 @@ public class controls : MonoBehaviour {
 	public int xBound;
 	public int yBound;
 
-	public int score;
+	public int score = 0;
 
 	public GameObject foodPrefab;
 	public GameObject currentFood;
@@ -18,8 +21,16 @@ public class controls : MonoBehaviour {
 	public GameObject snakePrefab;
 	public Snek head;
 	public Snek tail;
+	public GameObject boundaries;
 	public int NESW; // north east south west
 	public Vector2 nextPos;
+
+	public Text scoreText;
+
+	void Awake()
+	{
+		DontDestroyOnLoad(transform.gameObject);
+	}
 
 	void OnEnable()
 	{
@@ -28,8 +39,32 @@ public class controls : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
-		InvokeRepeating("TimerInvoke", 0, .5f);
+		InvokeRepeating("TimerInvoke", 0, .4f);
+		// here you can modify the SNEK speed - the lower the value the faster the speed
 		FoodFunction();
+		BoundaryFunction();
+	}
+
+	private void BoundaryFunction()
+	{
+		int x = xBound+2;
+		int y = yBound;
+		for (int i= 0; i<12; i++ )
+		{
+			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x--, y), transform.rotation);
+		}
+		for (int i = 0; i < 17; i++)
+		{
+			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x, y--), transform.rotation);
+		}
+		for (int i = 0; i < 12; i++)
+		{
+			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x++, y), transform.rotation);
+		}
+		for (int i = 0; i < 17; i++)
+		{
+			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x, y++), transform.rotation);
+		}
 	}
 
 	void OnDisable()
@@ -39,7 +74,7 @@ public class controls : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update() {
-		ChangeDirection();
+		//ChangeDirection();
 	}
 
 	void TimerInvoke()
@@ -82,23 +117,29 @@ public class controls : MonoBehaviour {
 		return;
 	}
 	//Handles the directon where snake goes
-	void ChangeDirection()
+	public void ChangeDirection(int x) //   Right - 0    Left - 1
 	{
-		if (NESW != 2 && Input.GetKeyDown(KeyCode.W))
+		if (x==0)
 		{
-			NESW = 0;
+			if (NESW == 3)
+			{
+				NESW = 0;
+			}
+			else
+			{
+				NESW++;
+			}
 		}
-		if (NESW != 3 && Input.GetKeyDown(KeyCode.D))
+		if (x==1)
 		{
-			NESW = 1;
-		}
-		if (NESW != 0 && Input.GetKeyDown(KeyCode.S))
-		{
-			NESW = 2;
-		}
-		if (NESW != 1 && Input.GetKeyDown(KeyCode.A))
-		{
-			NESW = 3;
+			if (NESW == 0)
+			{
+				NESW = 3;
+			}
+			else
+			{
+				NESW--;
+			}
 		}
 	}
 
@@ -111,17 +152,18 @@ public class controls : MonoBehaviour {
 
 	void FoodFunction()
 	{
-		//Randomizing value of food
-		int xPos = Random.Range(-xBound, xBound);
-		int yPos = Random.Range(-yBound, yBound);
+		//Randomizing spawn coordinates of food
+		int xPos = UnityEngine.Random.Range(-xBound, xBound);
+		int yPos = UnityEngine.Random.Range(-yBound, yBound);
 
 		//Creation of food
 		currentFood = (GameObject)Instantiate(foodPrefab, new Vector2(xPos, yPos), transform.rotation);
 		StartCoroutine(CheckRender(currentFood));
 
+
 	}
 
-	IEnumerator CheckRender(GameObject IN) // checking if the object rendered within camera
+	IEnumerator CheckRender(GameObject IN) // checking if the object rendered within boundaries
 	{
 		yield return new WaitForEndOfFrame();
 		if (IN.GetComponent<Renderer>().isVisible == false)
@@ -144,7 +186,18 @@ public class controls : MonoBehaviour {
 			FoodFunction();
 			maxSize++;
 			score++;
+			scoreText.text = score.ToString();
 		}
+		if (WhatWasSent == "Snek")
+		{
+			CancelInvoke("TimerInvoke");
+			Exit();
+		}
+	}
+
+	public void Exit()
+	{
+		SceneManager.LoadScene(2);
 	}
 
 }
