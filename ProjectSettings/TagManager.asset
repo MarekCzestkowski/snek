@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Snek
   - Food
+  - SuperFood
   layers:
   - Default
   - TransparentFX

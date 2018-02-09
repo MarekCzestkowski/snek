@@ -336,6 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2cffd70f2aa6b940bc86743bf49ceb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  updateOn: 1
   maxSize: 5
   currentSize: 1
   xBound: 4
@@ -343,6 +344,11 @@ MonoBehaviour:
   score: 0
   foodPrefab: {fileID: 1813261566260402, guid: f8455f3ba916fc6408ffc0192e766c05, type: 2}
   currentFood: {fileID: 0}
+  superFood: {fileID: 0}
+  superFoodPrefab: {fileID: 1813261566260402, guid: d600e1cc1cc75c0468931035cda8b435,
+    type: 2}
+  boundaryPrefab: {fileID: 1648263368168212, guid: 1bdce5129ed2aca46a6fd1c4bffd8083,
+    type: 2}
   snakePrefab: {fileID: 1648263368168212, guid: c84fef2e145a63b4bbf43824074d5a1c,
     type: 2}
   head: {fileID: 1501818162}
@@ -351,6 +357,7 @@ MonoBehaviour:
   NESW: 0
   nextPos: {x: 0, y: 0}
   scoreText: {fileID: 344027804}
+  interval: 0.5
 --- !u!4 &318103531
 Transform:
   m_ObjectHideFlags: 0

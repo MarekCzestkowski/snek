@@ -5,29 +5,35 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class controls : MonoBehaviour {
+public class controls : MonoBehaviour
+{
+	public bool updateOn = true;
 
-	public int maxSize;
-	public int currentSize;
+	public int maxSize; // maximum size of the snake
+	public int currentSize; // current size of the snake
 
-	public int xBound;
+	public int xBound; // boundaries
 	public int yBound;
 
 	public int score = 0;
 
 	public GameObject foodPrefab;
 	public GameObject currentFood;
-
+	public GameObject superFood;
+	public GameObject superFoodPrefab;
+	public GameObject boundaryPrefab;
 	public GameObject snakePrefab;
-	public Snek head;
-	public Snek tail;
+	public Snek head; // snake's head
+	public Snek tail; // rest of the snake
 	public GameObject boundaries;
-	public int NESW; // north east south west
-	public Vector2 nextPos;
+	public int NESW; // north east south west- the direction where the snake goes
+	public Vector2 nextPos; // next position of the snake
 
 	public Text scoreText;
 
-	void Awake()
+	public float interval = .5f; // how quick superfood flashes before it vanishes
+
+	void Awake() //used to collect the score at the game over screen
 	{
 		DontDestroyOnLoad(transform.gameObject);
 	}
@@ -37,33 +43,43 @@ public class controls : MonoBehaviour {
 		Snek.hit += hit;
 	}
 
-	// Use this for initialization
-	void Start() {
+	void Start()
+	{
 		InvokeRepeating("TimerInvoke", 0, .4f);
 		// here you can modify the SNEK speed - the lower the value the faster the speed
 		FoodFunction();
+		SuperFoodFunction();
 		BoundaryFunction();
+
 	}
 
-	private void BoundaryFunction()
+	void Flash()
 	{
-		int x = xBound+2;
+		if (superFood.activeSelf)
+			superFood.SetActive(false);
+		else
+			superFood.SetActive(true);
+	}
+
+	private void BoundaryFunction() // setting the real boundaries to the game
+	{
+		int x = xBound + 2;
 		int y = yBound;
-		for (int i= 0; i<12; i++ )
+		for (int i = 0; i < 12; i++)
 		{
-			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x--, y), transform.rotation);
+			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x--, y), transform.rotation);
 		}
 		for (int i = 0; i < 17; i++)
 		{
-			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x, y--), transform.rotation);
+			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x, y--), transform.rotation);
 		}
 		for (int i = 0; i < 12; i++)
 		{
-			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x++, y), transform.rotation);
+			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x++, y), transform.rotation);
 		}
 		for (int i = 0; i < 17; i++)
 		{
-			boundaries = (GameObject)Instantiate(snakePrefab, new Vector2(x, y++), transform.rotation);
+			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x, y++), transform.rotation);
 		}
 	}
 
@@ -73,9 +89,23 @@ public class controls : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void Update() {
-		//ChangeDirection();
+	void Update()
+	{
+		if (updateOn == true)
+		{
+			//here is defined percent chance for every frame that superfood will spawn
+			int percent=15;
+			System.Random r = new System.Random();
+			if (r.Next(1, 101) < percent)
+			{
+				SuperFoodFunction();
+			}
+		}
+
+		// if you want certain parts of update to work at all times write them here.
+
 	}
+
 
 	void TimerInvoke()
 	{
@@ -90,7 +120,7 @@ public class controls : MonoBehaviour {
 		}
 	}
 
-	void Controlls()
+	void Controlls() // controlls for the snake
 	{
 		GameObject temp;
 		nextPos = head.transform.position;
@@ -119,7 +149,7 @@ public class controls : MonoBehaviour {
 	//Handles the directon where snake goes
 	public void ChangeDirection(int x) //   Right - 0    Left - 1
 	{
-		if (x==0)
+		if (x == 0)
 		{
 			if (NESW == 3)
 			{
@@ -130,7 +160,7 @@ public class controls : MonoBehaviour {
 				NESW++;
 			}
 		}
-		if (x==1)
+		if (x == 1)
 		{
 			if (NESW == 0)
 			{
@@ -156,11 +186,33 @@ public class controls : MonoBehaviour {
 		int xPos = UnityEngine.Random.Range(-xBound, xBound);
 		int yPos = UnityEngine.Random.Range(-yBound, yBound);
 
-		//Creation of food
+		//Creating food
 		currentFood = (GameObject)Instantiate(foodPrefab, new Vector2(xPos, yPos), transform.rotation);
 		StartCoroutine(CheckRender(currentFood));
+	}
 
+	void SuperFoodFunction()
+	{
 
+		int xPos = UnityEngine.Random.Range(-xBound, xBound);
+		int yPos = UnityEngine.Random.Range(-yBound, yBound);
+
+		superFood = (GameObject)Instantiate(superFoodPrefab, new Vector2(xPos, yPos), transform.rotation);
+		updateOn = false;  //stopping the chance to spawn superfood
+		InvokeRepeating("Flash", 7, interval); //starting flash for 7 seconds
+		StartCoroutine(Wait());
+		
+		StartCoroutine(CheckRender(superFood));
+
+	}
+
+	IEnumerator Wait()
+	{
+		yield return new WaitForSeconds(10);
+		Destroy(superFood);
+		CancelInvoke(methodName: "Flash"); // ending flash
+
+		
 	}
 
 	IEnumerator CheckRender(GameObject IN) // checking if the object rendered within boundaries
@@ -173,12 +225,16 @@ public class controls : MonoBehaviour {
 				Destroy(IN);
 				FoodFunction();
 			}
-
+			if (IN.tag == "SuperFood")
+			{
+				Destroy(IN);
+				updateOn = true;
+			}
 		}
 
 	}
 
-	void hit(string WhatWasSent)
+	void hit(string WhatWasSent) // differencies between objects that snake approaches
 	{
 		//Collision handle
 		if (WhatWasSent == "Food")
@@ -193,11 +249,19 @@ public class controls : MonoBehaviour {
 			CancelInvoke("TimerInvoke");
 			Exit();
 		}
+		if (WhatWasSent == "SuperFood")
+		{
+			score = score + 10;
+			scoreText.text = score.ToString();
+			Destroy(superFood);
+			updateOn = true; // enabling the chance to spawn superfood
+		}
 	}
 
 	public void Exit()
 	{
 		SceneManager.LoadScene(2);
 	}
+
 
 }
