@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class controls : MonoBehaviour
 {
-	public bool updateOn = true;
 
 	public int maxSize; // maximum size of the snake
 	public int currentSize; // current size of the snake
@@ -33,6 +32,33 @@ public class controls : MonoBehaviour
 
 	public float interval = .5f; // how quick superfood flashes before it vanishes
 
+	//min and max time to spawn the object
+	public float maxTime = 10;
+	public float minTime = 2;
+	//current time
+	private float time;
+	//The time to spawn the object
+	private float spawnTime;
+
+	void FixedUpdate()
+	{
+		//Counts up
+		time += Time.deltaTime;
+		//Check if its the right time to spawn the object
+		if (time >= spawnTime && superFood)
+		{
+			SuperFoodFunction();
+			SetRandomTime();
+		}
+	}
+
+	//Sets the random time between minTime and maxTime
+	void SetRandomTime()
+	{
+		spawnTime = UnityEngine.Random.Range(minTime, maxTime);
+	}
+
+
 	void Awake() //used to collect the score at the game over screen
 	{
 		DontDestroyOnLoad(transform.gameObject);
@@ -48,9 +74,10 @@ public class controls : MonoBehaviour
 		InvokeRepeating("TimerInvoke", 0, .4f);
 		// here you can modify the SNEK speed - the lower the value the faster the speed
 		FoodFunction();
-		SuperFoodFunction();
-		BoundaryFunction();
 
+		BoundaryFunction();
+		SetRandomTime();
+		time = 0;
 	}
 
 	void Flash()
@@ -91,18 +118,6 @@ public class controls : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if (updateOn == true)
-		{
-			//here is defined percent chance for every frame that superfood will spawn
-			int percent=15;
-			System.Random r = new System.Random();
-			if (r.Next(1, 101) < percent)
-			{
-				SuperFoodFunction();
-			}
-		}
-
-		// if you want certain parts of update to work at all times write them here.
 
 	}
 
@@ -198,8 +213,8 @@ public class controls : MonoBehaviour
 		int yPos = UnityEngine.Random.Range(-yBound, yBound);
 
 		superFood = (GameObject)Instantiate(superFoodPrefab, new Vector2(xPos, yPos), transform.rotation);
-		updateOn = false;  //stopping the chance to spawn superfood
 		InvokeRepeating("Flash", 7, interval); //starting flash for 7 seconds
+
 		StartCoroutine(Wait());
 		
 		StartCoroutine(CheckRender(superFood));
@@ -210,9 +225,8 @@ public class controls : MonoBehaviour
 	{
 		yield return new WaitForSeconds(10);
 		Destroy(superFood);
-		CancelInvoke(methodName: "Flash"); // ending flash
+		time = 0;
 
-		
 	}
 
 	IEnumerator CheckRender(GameObject IN) // checking if the object rendered within boundaries
@@ -228,7 +242,8 @@ public class controls : MonoBehaviour
 			if (IN.tag == "SuperFood")
 			{
 				Destroy(IN);
-				updateOn = true;
+				CancelInvoke(methodName: "Flash"); // ending flash
+				StopCoroutine(Wait());
 			}
 		}
 
@@ -255,7 +270,6 @@ public class controls : MonoBehaviour
 			maxSize++;
 			scoreText.text = score.ToString();
 			Destroy(superFood);
-			updateOn = true; // enabling the chance to spawn superfood
 		}
 	}
 
@@ -263,6 +277,5 @@ public class controls : MonoBehaviour
 	{
 		SceneManager.LoadScene(2);
 	}
-
 
 }
