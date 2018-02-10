@@ -173,7 +173,7 @@ public class controls : MonoBehaviour
 		}
 	}
 
-	void TailFunction()
+	void TailFunction() //deleting the tail
 	{
 		Snek tempSnake = tail;
 		tail = tail.GetNext();
@@ -252,6 +252,7 @@ public class controls : MonoBehaviour
 		if (WhatWasSent == "SuperFood")
 		{
 			score = score + 10;
+			maxSize++;
 			scoreText.text = score.ToString();
 			Destroy(superFood);
 			updateOn = true; // enabling the chance to spawn superfood

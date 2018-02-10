@@ -33,6 +33,10 @@ public class Snek : MonoBehaviour {
 		{
 			Destroy(other.gameObject);
 		}
+		if (other.tag == "SuperFood")
+		{
+			Destroy(other.gameObject);
+		}
 	}
 
 }
