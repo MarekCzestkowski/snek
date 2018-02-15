@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class controls : MonoBehaviour
+public class GameController : MonoBehaviour
 {
 
 	public int maxSize; // maximum size of the snake
@@ -33,22 +33,27 @@ public class controls : MonoBehaviour
 	public float interval = .5f; // how quick superfood flashes before it vanishes
 
 	//min and max time to spawn the object
-	public float maxTime = 10;
-	public float minTime = 2;
+	public float maxTime = 100;
+	public float minTime = 10;
 	//current time
 	private float time;
 	//The time to spawn the object
 	private float spawnTime;
+
+	public bool toggleSuperFood = true;
 
 	void FixedUpdate()
 	{
 		//Counts up
 		time += Time.deltaTime;
 		//Check if its the right time to spawn the object
-		if (time >= spawnTime && superFood)
+		if (time >= spawnTime && toggleSuperFood == true)
 		{
 			SuperFoodFunction();
 			SetRandomTime();
+			time = 0;
+			toggleSuperFood = false;
+			
 		}
 	}
 
@@ -61,12 +66,13 @@ public class controls : MonoBehaviour
 
 	void Awake() //used to collect the score at the game over screen
 	{
-		DontDestroyOnLoad(transform.gameObject);
+		//DontDestroyOnLoad(transform.gameObject);
+		scoreText = GameObject.Find("Score").GetComponent<Text>();
 	}
 
 	void OnEnable()
 	{
-		Snek.hit += hit;
+		Snek.hit += Hit;
 	}
 
 	void Start()
@@ -112,7 +118,7 @@ public class controls : MonoBehaviour
 
 	void OnDisable()
 	{
-		Snek.hit -= hit;
+		Snek.hit -= Hit;
 	}
 
 	// Update is called once per frame
@@ -215,8 +221,8 @@ public class controls : MonoBehaviour
 		superFood = (GameObject)Instantiate(superFoodPrefab, new Vector2(xPos, yPos), transform.rotation);
 		InvokeRepeating("Flash", 7, interval); //starting flash for 7 seconds
 
+
 		StartCoroutine(Wait());
-		
 		StartCoroutine(CheckRender(superFood));
 
 	}
@@ -226,10 +232,13 @@ public class controls : MonoBehaviour
 		yield return new WaitForSeconds(10);
 		Destroy(superFood);
 		time = 0;
+		toggleSuperFood = true;
+		CancelInvoke(methodName: "Flash");
+
 
 	}
 
-	IEnumerator CheckRender(GameObject IN) // checking if the object rendered within boundaries
+	IEnumerator CheckRender(GameObject IN) // checking if the object rendered inside the view of the camera
 	{
 		yield return new WaitForEndOfFrame();
 		if (IN.GetComponent<Renderer>().isVisible == false)
@@ -242,14 +251,15 @@ public class controls : MonoBehaviour
 			if (IN.tag == "SuperFood")
 			{
 				Destroy(IN);
+				time = 0;
+				toggleSuperFood = true;
 				CancelInvoke(methodName: "Flash"); // ending flash
 				StopCoroutine(Wait());
 			}
 		}
-
 	}
 
-	void hit(string WhatWasSent) // differencies between objects that snake approaches
+	void Hit(string WhatWasSent) // differencies between objects that snake approaches
 	{
 		//Collision handle
 		if (WhatWasSent == "Food")
@@ -257,19 +267,22 @@ public class controls : MonoBehaviour
 			FoodFunction();
 			maxSize++;
 			score++;
-			scoreText.text = score.ToString();
+			scoreText.text = "score: " + score.ToString();
 		}
 		if (WhatWasSent == "Snek")
 		{
 			CancelInvoke("TimerInvoke");
+			Destroy(superFood);
+			Destroy(currentFood);
 			Exit();
 		}
 		if (WhatWasSent == "SuperFood")
 		{
 			score = score + 10;
 			maxSize++;
-			scoreText.text = score.ToString();
+			scoreText.text = "score: " + score.ToString();
 			Destroy(superFood);
+			CancelInvoke(methodName: "Flash");
 		}
 	}
 
@@ -277,5 +290,4 @@ public class controls : MonoBehaviour
 	{
 		SceneManager.LoadScene(2);
 	}
-
 }

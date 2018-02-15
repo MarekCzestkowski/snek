@@ -9,11 +9,10 @@ using UnityEngine.UI;
 public class GameOver : MonoBehaviour {
 
 	public Text scoreTxt;
-	controls s;
-
+	GameController s;
 	// Use this for initialization
 	void Start () {
-		s = GameObject.Find("GameController").GetComponent<controls>();
+		//s = GameObject.Find("GameController").GetComponent<GameController>();
 		scoreTxt.text = s.score.ToString();
 	}
 	
@@ -23,7 +22,6 @@ public class GameOver : MonoBehaviour {
 	}
 	public void GoToScene(int x)
 	{
-		s.score = 0;
 		SceneManager.LoadScene(x);
 	}
 }

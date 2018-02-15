@@ -336,7 +336,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2cffd70f2aa6b940bc86743bf49ceb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  updateOn: 1
   maxSize: 5
   currentSize: 1
   xBound: 4
@@ -358,6 +357,8 @@ MonoBehaviour:
   nextPos: {x: 0, y: 0}
   scoreText: {fileID: 344027804}
   interval: 0.5
+  maxTime: 10
+  minTime: 2
 --- !u!4 &318103531
 Transform:
   m_ObjectHideFlags: 0

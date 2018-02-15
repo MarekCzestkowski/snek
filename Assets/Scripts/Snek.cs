@@ -8,11 +8,13 @@ public class Snek : MonoBehaviour {
 	private Snek next;
 	static public Action<String> hit;
 
+	//setter
 	public void Setnext(Snek IN)
 	{
 		next = IN;
 	}
 
+	//getter
 	public Snek GetNext()
 	{
 		return next;
@@ -23,6 +25,7 @@ public class Snek : MonoBehaviour {
 		Destroy(this.gameObject);
 	}
 
+	// sends tagt to GameController
 	void OnTriggerEnter(Collider other)
 	{
 		if (hit != null)
@@ -38,5 +41,4 @@ public class Snek : MonoBehaviour {
 			Destroy(other.gameObject);
 		}
 	}
-
 }
