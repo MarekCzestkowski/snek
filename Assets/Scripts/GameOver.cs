@@ -12,8 +12,10 @@ public class GameOver : MonoBehaviour {
 	GameController s;
 	// Use this for initialization
 	void Start () {
-		//s = GameObject.Find("GameController").GetComponent<GameController>();
-		scoreTxt.text = s.score.ToString();
+		Screen.orientation = ScreenOrientation.Portrait;
+		s = GameObject.Find("GameController").GetComponent<GameController>();
+		scoreTxt.text = "Your Score: " + s.score.ToString();
+		Destroy(GameObject.Find("GameController"));
 	}
 	
 	// Update is called once per frame

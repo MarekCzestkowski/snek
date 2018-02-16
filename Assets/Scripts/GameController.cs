@@ -40,6 +40,7 @@ public class GameController : MonoBehaviour
 	//The time to spawn the object
 	private float spawnTime;
 
+	//toggles whether or not the superfood can be spawned
 	public bool toggleSuperFood = true;
 
 	void FixedUpdate()
@@ -66,7 +67,7 @@ public class GameController : MonoBehaviour
 
 	void Awake() //used to collect the score at the game over screen
 	{
-		//DontDestroyOnLoad(transform.gameObject);
+		DontDestroyOnLoad(transform.gameObject);
 		scoreText = GameObject.Find("Score").GetComponent<Text>();
 	}
 
@@ -77,10 +78,10 @@ public class GameController : MonoBehaviour
 
 	void Start()
 	{
+		Screen.orientation = ScreenOrientation.Portrait;
 		InvokeRepeating("TimerInvoke", 0, .4f);
 		// here you can modify the SNEK speed - the lower the value the faster the speed
 		FoodFunction();
-
 		BoundaryFunction();
 		SetRandomTime();
 		time = 0;
@@ -96,21 +97,21 @@ public class GameController : MonoBehaviour
 
 	private void BoundaryFunction() // setting the real boundaries to the game
 	{
-		int x = xBound + 2;
-		int y = yBound;
-		for (int i = 0; i < 12; i++)
+		int x = xBound/2;
+		int y = yBound/2;
+		for (int i = 0; i < xBound+1; i++)
 		{
 			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x--, y), transform.rotation);
 		}
-		for (int i = 0; i < 17; i++)
+		for (int i = 0; i < yBound+1; i++)
 		{
 			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x, y--), transform.rotation);
 		}
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < xBound+1; i++)
 		{
 			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x++, y), transform.rotation);
 		}
-		for (int i = 0; i < 17; i++)
+		for (int i = 0; i < yBound+1; i++)
 		{
 			boundaries = (GameObject)Instantiate(boundaryPrefab, new Vector2(x, y++), transform.rotation);
 		}
@@ -204,8 +205,8 @@ public class GameController : MonoBehaviour
 	void FoodFunction()
 	{
 		//Randomizing spawn coordinates of food
-		int xPos = UnityEngine.Random.Range(-xBound, xBound);
-		int yPos = UnityEngine.Random.Range(-yBound, yBound);
+		int xPos = UnityEngine.Random.Range(-xBound/2, xBound/2);
+		int yPos = UnityEngine.Random.Range(-yBound/2, yBound/2);
 
 		//Creating food
 		currentFood = (GameObject)Instantiate(foodPrefab, new Vector2(xPos, yPos), transform.rotation);
@@ -215,8 +216,8 @@ public class GameController : MonoBehaviour
 	void SuperFoodFunction()
 	{
 
-		int xPos = UnityEngine.Random.Range(-xBound, xBound);
-		int yPos = UnityEngine.Random.Range(-yBound, yBound);
+		int xPos = UnityEngine.Random.Range(-xBound/2, xBound/2);
+		int yPos = UnityEngine.Random.Range(-yBound/2, yBound/2);
 
 		superFood = (GameObject)Instantiate(superFoodPrefab, new Vector2(xPos, yPos), transform.rotation);
 		InvokeRepeating("Flash", 7, interval); //starting flash for 7 seconds
@@ -267,7 +268,7 @@ public class GameController : MonoBehaviour
 			FoodFunction();
 			maxSize++;
 			score++;
-			scoreText.text = "score: " + score.ToString();
+			scoreText.text = "Score: " + score.ToString();
 		}
 		if (WhatWasSent == "Snek")
 		{
@@ -280,7 +281,7 @@ public class GameController : MonoBehaviour
 		{
 			score = score + 10;
 			maxSize++;
-			scoreText.text = "score: " + score.ToString();
+			scoreText.text = "Score: " + score.ToString();
 			Destroy(superFood);
 			CancelInvoke(methodName: "Flash");
 		}
